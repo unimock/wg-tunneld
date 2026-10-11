@@ -1,0 +1,28 @@
+version: "1"
+app:
+  desc: "WireGuard tunneld"
+
+  # enter a unique app name, if you can not use COMPOSE_PROJECT_NAME in .env
+  overrule_compose_name: 
+
+  # set to true, if the service do not really fit into the dc environment. This will skip volume checks.
+  ignore_volume_check: false
+
+  # enter the main service name of the compose app to jump into the container with dc login or to copy files.
+  main_service: wqg-tunneld
+  # default run_level is 5, maybe for some apps (like treafik), it make sense to decrease it. Like 4
+  run_level: 2
+  group:
+  control:
+    type: compose
+    file: docker-compose.yml
+  # set to true for disable app in dc image list 
+  image_list:
+    disabled: false
+  home:
+    - type: default
+      # set state to "disabled" so that app service will not be included in "dc-inspect runtime"
+      state: active
+      # node on which the application should run or "." for local hostname 
+      node: .
+

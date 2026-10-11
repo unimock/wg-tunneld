@@ -1,0 +1,21 @@
+services:
+  # WireGuard container: brings up the tunnels in the host namespace (thanks to
+  # network_mode: host usable on the host and from other host-networked
+  # containers) and keeps the wg-reresolve watchdog running.
+  wg-tunneld:
+    build: ./build
+    container_name: ${DC_ENV_NAME}
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    # No `sysctls:` block: because of network_mode: host, runc forbids namespaced
+    # net.* sysctls in the host namespace. src_valid_mark/ip_forward are set
+    # directly via /proc/sys in entrypoint-wg.sh.
+    environment:
+      WG_CONF_DIR: /etc/wireguard
+    volumes:
+      - /etc/wireguard:/etc/wireguard:ro
+      # WireGuard kernel module from the host.
+      - /lib/modules:/lib/modules:ro
+    restart: unless-stopped
